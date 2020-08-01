@@ -10,6 +10,15 @@ jobs:
   - stage: "Lint"
     script:
       - pylint --rcfile=.pylintrc ./collector/ --init-hook='sys.path.extend(["./collector/"])'
+  - stage: "Test"
+    script:
+      - echo "Not implemented"
+
+deploy:
+  provider: script
+  script: bash ci/aws_deploy.sh
+  on:
+    branch: master
 
 branches:
   only:
