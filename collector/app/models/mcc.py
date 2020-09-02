@@ -17,7 +17,7 @@ SELECT_MCC_CODES = """
 
 
 class MCC:
-    """Model that provides methods to work with MCC data."""
+    """Class that provides methods to work with MCC data."""
 
     GET_ALL_QUERY = db.text("""
         SELECT * FROM mcc;

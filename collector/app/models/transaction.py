@@ -14,7 +14,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Transaction:
-    """Model that provides methods to work with Transaction data."""
+    """Class that provides methods to work with Transaction data."""
 
     CREATE_QUERY = db.text("""
         INSERT INTO transaction (id, user_id, amount, balance, cashback, mcc, timestamp, info)

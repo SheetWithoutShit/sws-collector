@@ -3,7 +3,9 @@
 from http import HTTPStatus
 
 from aiohttp import web
+from aiojobs.aiohttp import spawn
 
+from app.sio import TransactionEvent
 from app.models.mcc import MCC
 from app.models.transaction import Transaction
 from app.utils.jwt import decode_token
@@ -45,12 +47,14 @@ class MonobankWebhook(web.View):
 
         mcc_code = transaction["mcc"] if transaction["mcc"] in mcc_codes else -1
 
-        message = None
         try:
             inserted = await Transaction.create_transaction(user_id, mcc_code, transaction)
         except SWSDatabaseError as err:
             inserted = False
             message = str(err)
+        else:
+            message = "A transaction was inserted successfully."
+            await spawn(self.request, TransactionEvent.emit_new_transaction(user_id, transaction))
 
         return web.json_response(
             data={

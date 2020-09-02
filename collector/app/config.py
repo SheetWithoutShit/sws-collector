@@ -4,7 +4,6 @@ import os
 
 from sqlalchemy.engine.url import URL
 
-
 # Collector stuff
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(APP_DIR, os.pardir))
@@ -30,3 +29,6 @@ POSTGRES_DSN = URL(
     port=POSTGRES_PORT,
     database=POSTGRES_DB,
 )
+
+# JWT stuff
+JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
