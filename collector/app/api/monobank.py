@@ -9,6 +9,7 @@ from app.sio import TransactionEvent
 from app.models.mcc import MCC
 from app.models.transaction import Transaction
 from app.utils.jwt import decode_token
+from app.utils.response import make_response
 from app.utils.errors import SWSTokenError, SWSDatabaseError
 from app.utils.monobank import parse_transaction_response
 
@@ -41,7 +42,7 @@ class MonobankWebhook(web.View):
         transaction = parse_transaction_response(body)
 
         try:
-            mcc_codes = [mcc.code for mcc in await MCC.get_all()]
+            mcc_codes = await MCC.get_codes()
         except SWSDatabaseError:
             mcc_codes = []
 
@@ -56,12 +57,14 @@ class MonobankWebhook(web.View):
             message = "A transaction was inserted successfully."
             await spawn(self.request, TransactionEvent.emit_new_transaction(user_id, transaction))
 
-        return web.json_response(
-            data={
-                "success": bool(inserted),
-                "message": message,
-                "user_id": user_id,
-                "transaction": transaction
-            },
-            status=HTTPStatus.OK
+        response_data = {
+            "user_id": user_id,
+            "transaction": transaction
+        }
+        return make_response(
+            success=bool(inserted),
+            message=message,
+            data=response_data,
+            # We should return always 200 http status to monobank webhook
+            http_status=HTTPStatus.OK
         )

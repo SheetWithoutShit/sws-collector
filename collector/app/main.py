@@ -1,38 +1,48 @@
 """This module provides app initialization."""
 
+import os
 import logging
 
 from aiohttp.web import Application
 from aiojobs.aiohttp import setup as aiojobs_setup
 
-from core.database.redis import PoolManager as RedisPoolManager
-
 from app import config
 from app.db import db
 from app.sio import sio
+from app.middlewares import body_validator_middleware, error_middleware
 from app.api.monobank import monobank_routes
 from app.api.index import handle_404, handle_405, handle_500, internal_routes
-from app.middlewares import body_validator_middleware, error_middleware, auth_middleware
 
 
-LOGGER = logging.getLogger("")
+LOGGER = logging.getLogger(__name__)
+LOG_FORMAT = "%(asctime)s - %(levelname)s: %(name)s: %(message)s"
+
+
+def init_logging():
+    """
+    Initialize logging stream with debug level to console and
+    create file logger with error level if permission to file allowed.
+    """
+    logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG)
+
+    # disabling gino postgres echo logs
+    # in order to set echo pass echo=True to db config dict
+    logging.getLogger("gino.engine._SAEngine").propagate = False
+
+    log_dir = os.environ.get("LOG_DIR")
+    log_filepath = f'{log_dir}/collector.log'
+    if log_dir and os.path.isfile(log_filepath) and os.access(log_filepath, os.W_OK):
+        formatter = logging.Formatter(LOG_FORMAT)
+        file_handler = logging.FileHandler(log_filepath)
+        file_handler.setLevel(logging.ERROR)
+        file_handler.setFormatter(formatter)
+        logging.getLogger("").addHandler(file_handler)
 
 
 async def init_config(app):
     """Initialize aiohttp application with required constants."""
     setattr(app, "config", config)
     LOGGER.debug("Application config has successfully set up.")
-
-
-async def init_clients(app):
-    """Initialize aiohttp application with clients."""
-    app["redis"] = redis = await RedisPoolManager.create()
-    LOGGER.debug("Clients has successfully initialized.")
-
-    yield
-
-    await redis.close()
-    LOGGER.debug("Clients has successfully closed.")
 
 
 # TODO: for testing purposes, remove it when ui part will be ready
@@ -74,6 +84,8 @@ def init_app():
     """Prepare aiohttp web server for further running."""
     app = Application()
 
+    init_logging()
+
     sio.attach(app)
     aiojobs_setup(app)
     db.init_app(
@@ -91,10 +103,8 @@ def init_app():
     app.add_routes(internal_routes)
     app.router.add_route("GET", "/index", index)
 
-    app.cleanup_ctx.append(init_clients)
     app.on_startup.append(init_config)
 
-    app.middlewares.append(auth_middleware)
     app.middlewares.append(body_validator_middleware)
     app.middlewares.append(error_middleware({
         404: handle_404,
