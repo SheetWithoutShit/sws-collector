@@ -32,7 +32,7 @@ POSTGRES_DSN = URL(
 
 # REDIS stuff
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = os.getenv("REDIS_PORT", 6379)
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 
 # JWT stuff
 JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
