@@ -16,9 +16,19 @@ LOGGER = logging.getLogger(__name__)
 class Transaction:
     """Class that provides methods to work with Transaction data."""
 
-    CREATE_QUERY = db.text("""
+    CREATE_TRANSACTION = db.text("""
         INSERT INTO transaction (id, user_id, amount, balance, cashback, mcc, timestamp, info)
         VALUES (:id, :user_id, :amount, :balance, :cashback, :mcc, :timestamp, :info);
+    """)
+    SELECT_CATEGORY_TRANSACTIONS_AMOUNT = db.text("""
+        SELECT abs(sum(amount))
+        FROM transaction
+        JOIN mcc on transaction.mcc=mcc.code
+        JOIN mcc_category on mcc.category_id=mcc_category.id
+        WHERE timestamp between :start_date and :end_date
+            and transaction.user_id = :user_id
+            and mcc.category_id= :category_id
+            and amount < 0
     """)
 
     @classmethod
@@ -27,7 +37,7 @@ class Transaction:
         timestamp = datetime.fromtimestamp(transaction["timestamp"])
         try:
             return await db.status(
-                cls.CREATE_QUERY,
+                cls.CREATE_TRANSACTION,
                 id=transaction["id"],
                 user_id=user_id,
                 amount=transaction["amount"],
@@ -43,3 +53,20 @@ class Transaction:
         except SQLAlchemyError as err:
             LOGGER.error("Could not create transaction for user=%s: %s. Error: %s", user_id, transaction, err)
             raise SWSDatabaseError("Failure. Failed to create transaction.")
+
+    @classmethod
+    async def get_category_transactions_amount(cls, user_id, category_id, start_date, end_date):
+        """Retrieve category transaction amount for provided period of time."""
+        try:
+            amount = await db.scalar(
+                cls.SELECT_CATEGORY_TRANSACTIONS_AMOUNT,
+                user_id=user_id,
+                category_id=category_id,
+                start_date=start_date,
+                end_date=end_date
+            )
+        except SQLAlchemyError as err:
+            LOGGER.error("Could not retrieve category=%s transaction amount. Error: %s", category_id, err)
+            raise SWSDatabaseError(f"Failure. Failed to retrieve category={category_id} transaction amount.")
+
+        return amount
