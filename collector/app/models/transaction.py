@@ -42,4 +42,4 @@ class Transaction:
             raise SWSDatabaseError(f"Failure. The transaction={transaction['id']} already exists.")
         except SQLAlchemyError as err:
             LOGGER.error("Could not create transaction for user=%s: %s. Error: %s", user_id, transaction, err)
-            raise SWSDatabaseError(f"Failure. Failed to create transaction.")
+            raise SWSDatabaseError("Failure. Failed to create transaction.")
