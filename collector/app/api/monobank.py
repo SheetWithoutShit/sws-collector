@@ -42,10 +42,10 @@ class MonobankWebhook(web.View):
                 status=HTTPStatus.FORBIDDEN
             )
 
-        LOGGER.info("The monobank webhook for user=%s was successfully initialized.", user_id)
+        LOGGER.info("The monobank webhook for user=%s was initialized.", user_id)
         return make_response(
             success=True,
-            message=f"The monobank webhook was successfully applied for user={user_id}",
+            message=f"Success. The monobank webhook was applied for user={user_id}",
             http_status=HTTPStatus.OK
         )
 
@@ -71,15 +71,21 @@ class MonobankWebhook(web.View):
         except SWSDatabaseError:
             mcc_codes = []
 
-        mcc_code = transaction["mcc"] if transaction["mcc"] in mcc_codes else -1
+        mcc_code = transaction["mcc"]
+        if mcc_code not in mcc_codes:
+            LOGGER.error("Could not find MCC code=%s in database.", mcc_code)
+            mcc_code = -1
 
         try:
-            inserted = await Transaction.create_transaction(user_id, mcc_code, transaction)
+            await Transaction.create_transaction(user_id, mcc_code, transaction)
         except SWSDatabaseError as err:
-            inserted = False
-            message = str(err)
+            return make_response(
+                success=False,
+                message=str(err),
+                # We should return always 200 http status to monobank webhook
+                http_status=HTTPStatus.OK
+            )
         else:
-            message = "A transaction was inserted successfully."
             await spawn(self.request, TransactionEvent.emit_new_transaction(user_id, transaction))
 
         response_data = {
@@ -87,9 +93,8 @@ class MonobankWebhook(web.View):
             "transaction": transaction
         }
         return make_response(
-            success=bool(inserted),
-            message=message,
+            success=True,
+            message="Success. The transaction was inserted.",
             data=response_data,
-            # We should return always 200 http status to monobank webhook
             http_status=HTTPStatus.OK
         )

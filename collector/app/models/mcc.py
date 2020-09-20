@@ -29,7 +29,7 @@ class MCC:
             mcc_codes = [mcc.code for mcc in await db.all(cls.GET_CODES_QUERY)]
         except SQLAlchemyError as err:
             LOGGER.error("Couldn't retrieve all MCC codes. Error: %s", err)
-            raise SWSDatabaseError("Failed to retrieve all MCC codes.")
+            raise SWSDatabaseError("Failure. Failed to retrieve all MCC codes.")
         else:
             await cache.set(MCC_CODES_CACHE_KEY, mcc_codes)
 

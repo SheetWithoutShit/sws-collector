@@ -38,8 +38,8 @@ class Transaction:
                 info=transaction["info"]
             )
         except exceptions.UniqueViolationError:
-            LOGGER.error("A transaction with that id already exists. Transaction: %s", transaction)
-            raise SWSDatabaseError("A transaction with that id already exists.")
+            LOGGER.error("The transaction already exists. Transaction: %s", transaction)
+            raise SWSDatabaseError(f"Failure. The transaction={transaction['id']} already exists.")
         except SQLAlchemyError as err:
             LOGGER.error("Could not create transaction for user=%s: %s. Error: %s", user_id, transaction, err)
-            raise SWSDatabaseError(f"Could not create transaction for user={user_id}: {transaction}.")
+            raise SWSDatabaseError(f"Failure. Failed to create transaction.")
