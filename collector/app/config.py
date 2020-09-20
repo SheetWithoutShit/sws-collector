@@ -36,3 +36,6 @@ REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 
 # JWT stuff
 JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
+
+# SQS stuff
+SQS_NOTIFICATIONS_QUEUE_NAME = "telegram-notifications"
