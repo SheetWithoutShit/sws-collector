@@ -16,8 +16,8 @@ sudo chmod +x /usr/bin/ecs-deploy
 eval $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
 
 # build docker images and push to ECR
-docker build -t sws-collector .
-docker tag sws-collector:latest $AWS_ECR:latest
+docker build -t spentless-collector .
+docker tag spentless-collector:latest $AWS_ECR:latest
 docker push $AWS_ECR:latest
 
 # update an AWS ECS service with the new image
