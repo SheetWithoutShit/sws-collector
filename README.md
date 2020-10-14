@@ -1,23 +1,13 @@
-# Sheet Without Shit. Collector
+# Spentless. Collector
 
-[![Build Status](https://travis-ci.org/SheetWithoutShit/sws-collector.svg?branch=master)](https://travis-ci.org/SheetWithoutShit/sws-collector)
+[![Build Status](https://travis-ci.com/SpentlessInc/spentless-collector.svg?branch=master)](https://travis-ci.com/SpentlessInc/spentless-collector)
 
-TODO: installing
+# Description
+The collector app created for receiving transaction information (as webhook) from monobank when a user makes any transaction operation. If a transaction event was received:
+* save transaction to database
+* send server event to front-end
+* notify the user about transaction
+* notify the user if the limit in the transaction category was exceeded.
 
-TODO: running
-
-# Environment variables
-```shell script
-MONOBANK_WEBHOOK_SECRET=
-
-POSTGRES_HOST=
-POSTGRES_PORT=5432
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-POSTGRES_DB=
-
-REDIS_HOST=
-REDIS_PORT=6379
-
-COLLECTOR_HOST=0.0.0.0
-```
+# How to run?
+Follow the instruction placed in [spentless-infrastructure](https://github.com/SpentlessInc/spentless-infrastructure).

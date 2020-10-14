@@ -7,7 +7,7 @@ from asyncpg import exceptions
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.db import db
-from app.utils.errors import SWSDatabaseError
+from app.utils.errors import DatabaseError
 
 
 LOGGER = logging.getLogger(__name__)
@@ -49,10 +49,10 @@ class Transaction:
             )
         except exceptions.UniqueViolationError:
             LOGGER.error("The transaction already exists. Transaction: %s", transaction)
-            raise SWSDatabaseError(f"Failure. The transaction={transaction['id']} already exists.")
+            raise DatabaseError(f"Failure. The transaction={transaction['id']} already exists.")
         except SQLAlchemyError as err:
             LOGGER.error("Could not create transaction for user=%s: %s. Error: %s", user_id, transaction, err)
-            raise SWSDatabaseError("Failure. Failed to create transaction.")
+            raise DatabaseError("Failure. Failed to create transaction.")
 
     @classmethod
     async def get_category_transactions_amount(cls, user_id, category_id, start_date, end_date):
@@ -67,6 +67,6 @@ class Transaction:
             )
         except SQLAlchemyError as err:
             LOGGER.error("Could not retrieve category=%s transaction amount. Error: %s", category_id, err)
-            raise SWSDatabaseError(f"Failure. Failed to retrieve category={category_id} transaction amount.")
+            raise DatabaseError(f"Failure. Failed to retrieve category={category_id} transaction amount.")
 
         return amount

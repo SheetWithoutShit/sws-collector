@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.db import db
 from app.cache import cache, MCC_CODES_CACHE_KEY, MCC_CATEGORY_CACHE_KEY, MCC_CATEGORY_CACHE_EXPIRE
-from app.utils.errors import SWSDatabaseError
+from app.utils.errors import DatabaseError
 
 
 LOGGER = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class MCC:
             mcc_codes = [mcc.code for mcc in await db.all(cls.SELECT_CODES)]
         except SQLAlchemyError as err:
             LOGGER.error("Could not retrieve all MCC codes. Error: %s", err)
-            raise SWSDatabaseError("Failure. Failed to retrieve all MCC codes.")
+            raise DatabaseError("Failure. Failed to retrieve all MCC codes.")
         else:
             await cache.set(MCC_CODES_CACHE_KEY, mcc_codes)
 
@@ -57,7 +57,7 @@ class MCC:
             return cls.OTHER_CATEGORY
         except SQLAlchemyError as err:
             LOGGER.error("Could not retrieve all MCC category for code=%s. Error: %s", mcc_code, err)
-            raise SWSDatabaseError(f"Failure. Failed to retrieve MCC category for code={mcc_code}.")
+            raise DatabaseError(f"Failure. Failed to retrieve MCC category for code={mcc_code}.")
         else:
             await cache.set(mcc_category_key, mcc_category.name, MCC_CATEGORY_CACHE_EXPIRE)
 
