@@ -6,7 +6,7 @@ from gino import exceptions
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.db import db
-from app.utils.errors import SWSDatabaseError
+from app.utils.errors import DatabaseError
 
 
 LOGGER = logging.getLogger(__name__)
@@ -37,10 +37,10 @@ class User:
             user = await db.one(cls.SELECT_USER, user_id=user_id)
         except exceptions.NoResultFound:
             LOGGER.error("Could not find user=%s.", user_id)
-            raise SWSDatabaseError
+            raise DatabaseError
         except SQLAlchemyError as err:
             LOGGER.error("Failed to fetch user=%s. Error: %s", user_id, err)
-            raise SWSDatabaseError
+            raise DatabaseError
 
         return user
 
@@ -51,9 +51,9 @@ class User:
             limit = await db.one(cls.SELECT_LIMIT, user_id=user_id, mcc_code=mcc_code)
         except exceptions.NoResultFound:
             LOGGER.error("Could not find limit by mcc code=%s for user=%s.", mcc_code, user_id)
-            raise SWSDatabaseError
+            raise DatabaseError
         except SQLAlchemyError as err:
             LOGGER.error("Failed to fetch limit by mcc code=% for user=%s. Error: %s", mcc_code, user_id, err)
-            raise SWSDatabaseError
+            raise DatabaseError
 
         return limit

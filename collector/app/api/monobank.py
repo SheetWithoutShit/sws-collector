@@ -12,7 +12,7 @@ from app.models.mcc import MCC
 from app.models.transaction import Transaction
 from app.utils.jwt import decode_token
 from app.utils.response import make_response
-from app.utils.errors import SWSTokenError, SWSDatabaseError
+from app.utils.errors import TokenError, DatabaseError
 from app.utils.monobank import parse_transaction_response
 from app.utils.telegram import push_user_notifications
 
@@ -35,7 +35,7 @@ class MonobankWebhook(web.View):
         """Process first get request by monobank webhook."""
         try:
             user_id = self.parse_user_token()
-        except (SWSTokenError, KeyError):
+        except (TokenError, KeyError):
             return web.json_response(
                 data={
                     "success": False,
@@ -57,7 +57,7 @@ class MonobankWebhook(web.View):
 
         try:
             user_id = self.parse_user_token()
-        except (SWSTokenError, KeyError):
+        except (TokenError, KeyError):
             return web.json_response(
                 data={
                     "success": False,
@@ -70,7 +70,7 @@ class MonobankWebhook(web.View):
 
         try:
             mcc_codes = await MCC.get_codes()
-        except SWSDatabaseError:
+        except DatabaseError:
             mcc_codes = []
 
         mcc_code = transaction["mcc"]
@@ -80,7 +80,7 @@ class MonobankWebhook(web.View):
 
         try:
             await Transaction.create_transaction(user_id, mcc_code, transaction)
-        except SWSDatabaseError as err:
+        except DatabaseError as err:
             return make_response(
                 success=False,
                 message=str(err),

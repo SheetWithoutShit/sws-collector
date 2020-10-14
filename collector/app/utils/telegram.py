@@ -11,7 +11,7 @@ from app import config
 from app.models.user import User
 from app.models.mcc import MCC
 from app.models.transaction import Transaction
-from app.utils.errors import SWSDatabaseError
+from app.utils.errors import DatabaseError
 
 
 LOGGER = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ async def get_transaction_event(telegram_id, transaction):
     """Push notification about a new transaction to SQS for user."""
     try:
         category = await MCC.get_category(transaction["mcc"])
-    except SWSDatabaseError:
+    except DatabaseError:
         category = "-"
 
     date = datetime.fromtimestamp(transaction["timestamp"]).strftime("%d.%m.%Y %H:%M:%S")
@@ -56,7 +56,7 @@ async def get_limit_event(user_id, telegram_id, mcc_code):
     """Push notification about limit exceeding to SQS for user."""
     try:
         limit = await User.get_limit(user_id, mcc_code)
-    except SWSDatabaseError:
+    except DatabaseError:
         return
 
     end_date = datetime.now()
@@ -68,7 +68,7 @@ async def get_limit_event(user_id, telegram_id, mcc_code):
             start_date=start_date,
             end_date=end_date
         )
-    except SWSDatabaseError:
+    except DatabaseError:
         return
 
     if transactions_amount > limit["amount"]:
@@ -89,7 +89,7 @@ async def push_user_notifications(user_id, transaction):
     """Push telegram notifications to SQS for user."""
     try:
         user = await User.get(user_id)
-    except SWSDatabaseError:
+    except DatabaseError:
         return
 
     if user.telegram_id is None:

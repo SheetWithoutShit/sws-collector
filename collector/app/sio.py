@@ -4,7 +4,7 @@ import socketio
 
 from app.config import JWT_SECRET_KEY
 from app.utils.jwt import decode_token
-from app.utils.errors import SWSTokenError
+from app.utils.errors import TokenError
 
 
 sio = socketio.AsyncServer(async_mode="aiohttp")
@@ -21,7 +21,7 @@ class TransactionEvent(socketio.AsyncNamespace):
         token = message.get("token", "").split("Bearer ")[-1]
         try:
             payload = decode_token(token, JWT_SECRET_KEY)
-        except SWSTokenError:
+        except TokenError:
             return
 
         user_id = payload["user_id"]

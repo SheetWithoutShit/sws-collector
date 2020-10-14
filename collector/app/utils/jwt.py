@@ -2,7 +2,7 @@
 
 import jwt
 
-from app.utils.errors import SWSTokenError
+from app.utils.errors import TokenError
 
 
 def decode_token(token, secret_key):
@@ -10,6 +10,6 @@ def decode_token(token, secret_key):
     try:
         return jwt.decode(token, secret_key)
     except jwt.DecodeError:
-        raise SWSTokenError("The token is invalid.")
+        raise TokenError("The token is invalid.")
     except jwt.ExpiredSignatureError:
-        raise SWSTokenError("The token has expired.")
+        raise TokenError("The token has expired.")
