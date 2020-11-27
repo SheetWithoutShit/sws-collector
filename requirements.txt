@@ -27,3 +27,4 @@ pycparser==2.20
 requests==2.23.0
 yarl==1.4.2
 watchgod==0.6
+gunicorn==20.0.4
