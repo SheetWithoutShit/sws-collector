@@ -60,38 +60,39 @@ def init_db(app):
 
 
 # TODO: for testing purposes, remove it when ui part will be ready
-async def index(request):
-    d = """
-    <html>
-    <head>
-        <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
-        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
-        <script type="text/javascript"">
-            $(document).ready(function(){
-                namespace = '/transaction';
-                var token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1OTkwMzgzMjYsImV4cCI6MTU5OTY0MzEyNiwidXNlcl9pZCI6NX0.ZAGU9ogJQTgy7TgzpqlE25TB4rwvxnL55jnmPOSyWPE"
-                const socket = io.connect('localhost:5010/transaction');
-                socket.on('new transaction', function(msg) {
-                    console.log(msg)
-                    $('#log').append('<br>Received: ' + msg);
-                });
-                socket.on('connect', function() {
-                    socket.emit('subscribe', {token: token});
-                });
-                socket.on('subscribed', function(msg) {
-                    $('#log').append('<br>Received 1: ' + msg);
-                });
-            });
-        </script>
-    </head>
-    <body>
-        LOG
-        <div><p id="log"></p></div>
-    </body>
-    </html>
-    """
-    from aiohttp import web
-    return web.Response(text=d, content_type='text/html')
+# async def index(request):
+#     """For testing purposes"""
+#     index = """
+#     <html>
+#     <head>
+#         <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+#         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js">
+#         </script>
+#         <script type="text/javascript"">
+#             $(document).ready(function(){
+#                 namespace = '/transaction';
+#                 var token = "test"
+#                 const socket = io.connect('localhost:5010/transaction');
+#                 socket.on('new transaction', function(msg) {
+#                     console.log(msg)
+#                     $('#log').append('<br>Received: ' + msg);
+#                 });
+#                 socket.on('connect', function() {
+#                     socket.emit('subscribe', {token: token});
+#                 });
+#                 socket.on('subscribed', function(msg) {
+#                     $('#log').append('<br>Received 1: ' + msg);
+#                 });
+#             });
+#         </script>
+#     </head>
+#     <body>
+#         LOG
+#         <div><p id="log"></p></div>
+#     </body>
+#     </html>
+#     """
+#     return Response(text=index, content_type='text/html')
 
 
 def init_app():
@@ -106,7 +107,6 @@ def init_app():
 
     app.add_routes(monobank_routes)
     app.add_routes(internal_routes)
-    app.router.add_route("GET", "/index", index)
 
     app.on_startup.append(init_config)
 

@@ -19,14 +19,14 @@ jobs:
       - ci/aws_deploy.sh
 
   - stage: "Staging Deploy"
-      if: branch = staging AND type = push
-      script: skip
-      deploy: &heroku
-        provider: heroku
-        app: spentless-collector
-        api_key: $HEROKU_TOKEN
-        on:
-          branch: staging
+    if: branch = staging AND type = push
+    script: skip
+    deploy: &heroku
+      provider: heroku
+      app: spentless-collector
+      api_key: $HEROKU_TOKEN
+      on:
+        branch: staging
 
 branches:
   only:

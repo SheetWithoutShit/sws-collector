@@ -1,6 +1,5 @@
 """This module provides views for collector app."""
 
-import asyncio
 import logging
 from http import HTTPStatus
 
@@ -14,7 +13,6 @@ from app.utils.jwt import decode_token
 from app.utils.response import make_response
 from app.utils.errors import TokenError, DatabaseError
 from app.utils.monobank import parse_transaction_response
-from app.utils.telegram import push_user_notifications
 
 
 monobank_routes = web.RouteTableDef()
@@ -88,10 +86,7 @@ class MonobankWebhook(web.View):
                 http_status=HTTPStatus.OK
             )
         else:
-            await asyncio.gather(
-                spawn(self.request, TransactionEvent.emit_new_transaction(user_id, transaction)),
-        #         spawn(self.request, push_user_notifications(user_id, transaction))
-            )
+            await spawn(self.request, TransactionEvent.emit_new_transaction(user_id, transaction))
 
         response_data = {
             "user_id": user_id,
