@@ -5,6 +5,8 @@ import os
 from sqlalchemy.engine.url import URL
 
 # Collector stuff
+APP_MODE = os.getenv("APP_MODE", "DEV")
+
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(APP_DIR, os.pardir))
 TEMPLATES_DIR = os.path.join(APP_DIR, "templates")
@@ -21,7 +23,8 @@ POSTGRES_POOL_MIN_SIZE = int(os.getenv("POSTGRES_POOL_MIN_SIZE", "1"))
 POSTGRES_POOL_MAX_SIZE = int(os.getenv("POSTGRES_POOL_MAX_SIZE", "16"))
 POSTGRES_RETRY_LIMIT = int(os.getenv("POSTGRES_RETRY_LIMIT", "32"))
 POSTGRES_RETRY_INTERVAL = int(os.getenv("POSTGRES_RETRY_INTERVAL", "1"))
-POSTGRES_DSN = URL(
+POSTGRES_DSN_STAGING = os.getenv("DATABASE_URL")
+POSTGRES_DSN_DEV = URL(
     drivername=POSTGRES_DRIVER_NAME,
     username=POSTGRES_USER,
     password=POSTGRES_PASSWORD,
@@ -31,8 +34,7 @@ POSTGRES_DSN = URL(
 )
 
 # REDIS stuff
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
 
 # JWT stuff
 JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]

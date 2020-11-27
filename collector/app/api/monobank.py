@@ -90,7 +90,7 @@ class MonobankWebhook(web.View):
         else:
             await asyncio.gather(
                 spawn(self.request, TransactionEvent.emit_new_transaction(user_id, transaction)),
-                spawn(self.request, push_user_notifications(user_id, transaction))
+        #         spawn(self.request, push_user_notifications(user_id, transaction))
             )
 
         response_data = {

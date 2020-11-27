@@ -7,7 +7,7 @@ from aiohttp.web import Application
 from aiojobs.aiohttp import setup as aiojobs_setup
 
 from app import config
-from app.db import db
+from app.db import db, get_database_dsn
 from app.sio import sio
 from app.middlewares import body_validator_middleware, error_middleware
 from app.api.monobank import monobank_routes
@@ -29,9 +29,9 @@ def init_logging():
     # in order to set echo pass echo=True to db config dict
     logging.getLogger("gino.engine._SAEngine").propagate = False
 
-    log_dir = os.environ.get("LOG_DIR")
+    log_dir = os.getenv("LOG_DIR")
     log_filepath = f'{log_dir}/collector.log'
-    if log_dir and os.path.isfile(log_filepath) and os.access(log_filepath, os.W_OK):
+    if log_dir and os.path.isdir(log_filepath) and os.access(log_dir, os.W_OK):
         formatter = logging.Formatter(LOG_FORMAT)
         file_handler = logging.FileHandler(log_filepath)
         file_handler.setLevel(logging.INFO)
@@ -43,6 +43,20 @@ async def init_config(app):
     """Initialize aiohttp application with required constants."""
     setattr(app, "config", config)
     LOGGER.debug("Application config has successfully set up.")
+
+
+def init_db(app):
+    """Initialize database postgres connection based on server mode."""
+    db.init_app(
+        app,
+        dict(
+            dsn=get_database_dsn(),
+            min_size=config.POSTGRES_POOL_MIN_SIZE,
+            max_size=config.POSTGRES_POOL_MAX_SIZE,
+            retry_limit=config.POSTGRES_RETRY_LIMIT,
+            retry_interval=config.POSTGRES_RETRY_INTERVAL
+        ),
+    )
 
 
 # TODO: for testing purposes, remove it when ui part will be ready
@@ -85,19 +99,10 @@ def init_app():
     app = Application()
 
     init_logging()
+    init_db(app)
 
     sio.attach(app)
     aiojobs_setup(app)
-    db.init_app(
-        app,
-        dict(
-            dsn=config.POSTGRES_DSN,
-            min_size=config.POSTGRES_POOL_MIN_SIZE,
-            max_size=config.POSTGRES_RETRY_INTERVAL,
-            retry_limit=config.POSTGRES_RETRY_LIMIT,
-            retry_interval=config.POSTGRES_RETRY_INTERVAL,
-        ),
-    )
 
     app.add_routes(monobank_routes)
     app.add_routes(internal_routes)
@@ -105,6 +110,7 @@ def init_app():
 
     app.on_startup.append(init_config)
 
+    app.middlewares.append(db)
     app.middlewares.append(body_validator_middleware)
     app.middlewares.append(error_middleware({
         404: handle_404,
