@@ -10,7 +10,7 @@ from app import config
 from app.db import db, get_database_dsn
 from app.sio import sio
 from app.middlewares import body_validator_middleware, error_middleware
-# from app.api.monobank import monobank_routes
+from app.api.monobank import monobank_routes
 from app.api.index import handle_404, handle_405, handle_500, internal_routes
 
 
@@ -104,7 +104,7 @@ def init_app():
     sio.attach(app)
     aiojobs_setup(app)
 
-    # app.add_routes(monobank_routes)
+    app.add_routes(monobank_routes)
     app.add_routes(internal_routes)
     app.router.add_route("GET", "/index", index)
 
