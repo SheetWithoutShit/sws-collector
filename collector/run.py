@@ -1,4 +1,4 @@
-"""This module provides entrypoint for running server application."""
+"""This module provides entrypoint for running collector application."""
 
 import os
 
@@ -12,10 +12,11 @@ ACCESS_LOG_FORMAT = "%a [VIEW: %r] [RESPONSE: %s (%bb)] [TIME: %Dms]"
 
 if __name__ == '__main__':
     host = os.environ.get("COLLECTOR_HOST", "localhost")
+    port = os.environ.get("COLLECTOR_PORT", "5010")
 
     run_app(
         init_app(),
         host=host,
-        port=5010,
+        port=int(port),
         access_log_format=ACCESS_LOG_FORMAT
     )
