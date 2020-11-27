@@ -1,6 +1,6 @@
 # Spentless. Collector
-
-[![Build Status](https://travis-ci.com/SpentlessInc/spentless-collector.svg?branch=master)](https://travis-ci.com/SpentlessInc/spentless-collector)
+* [![Build Status](https://travis-ci.com/SpentlessInc/spentless-collector.svg?branch=master)](https://travis-ci.com/SpentlessInc/spentless-collector) **Master**
+* [![Build Status](https://travis-ci.com/SpentlessInc/spentless-collector.svg?branch=staging)](https://travis-ci.com/SpentlessInc/spentless-collector) **Staging**
 
 # Description
 The collector app created for receiving transaction information (as webhook) from monobank when a user makes any transaction operation. If a transaction event was received:
