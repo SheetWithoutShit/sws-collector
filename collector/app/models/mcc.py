@@ -23,7 +23,7 @@ class MCC:
     SELECT_CATEGORY = db.text("""
         SELECT name
         FROM mcc
-        LEFT JOIN mcc_category on mcc_category.category_id=mcc.code
+        LEFT JOIN mcc_category on mcc_category.id=mcc.code
         WHERE code=:mcc_code
     """)
 
@@ -50,6 +50,7 @@ class MCC:
         mcc_category = await cache.get(mcc_category_key)
         if mcc_category:
             return mcc_category
+
         try:
             mcc_category = await db.one(cls.SELECT_CATEGORY, mcc_code=mcc_code)
         except exceptions.NoResultFound:
