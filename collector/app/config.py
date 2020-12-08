@@ -39,5 +39,6 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
 # JWT stuff
 JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
 
-# SQS stuff
-SQS_NOTIFICATIONS_QUEUE_NAME = "telegram-notifications"
+# Telegram stuff
+TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
+TELEGRAM_API = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"

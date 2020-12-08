@@ -13,6 +13,7 @@ from app.utils.jwt import decode_token
 from app.utils.response import make_response
 from app.utils.errors import TokenError, DatabaseError
 from app.utils.monobank import parse_transaction_response
+from app.utils.notification import send_user_notifications
 
 
 monobank_routes = web.RouteTableDef()
@@ -87,6 +88,7 @@ class MonobankWebhook(web.View):
             )
         else:
             await spawn(self.request, TransactionEvent.emit_new_transaction(user_id, transaction))
+            await spawn(self.request, send_user_notifications(user_id, transaction))
 
         response_data = {
             "user_id": user_id,
