@@ -23,7 +23,7 @@ class MCC:
     SELECT_CATEGORY = db.text("""
         SELECT name
         FROM mcc
-        LEFT JOIN mcc_category on mcc_category.id=mcc.code
+        LEFT JOIN mcc_category on mcc_category.id=mcc.category_id
         WHERE code=:mcc_code
     """)
 
